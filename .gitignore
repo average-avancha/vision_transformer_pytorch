@@ -1,0 +1,8 @@
+# Python cache files
+*.pyc
+
+# Datasets folder
+data/
+
+# PyTorch model files
+*.pt
