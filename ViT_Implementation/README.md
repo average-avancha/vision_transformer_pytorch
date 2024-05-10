@@ -1,1 +1,0 @@
-# vision_transformer_pytorch
