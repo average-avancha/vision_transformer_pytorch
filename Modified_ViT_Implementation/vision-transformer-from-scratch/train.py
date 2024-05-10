@@ -4,27 +4,29 @@ from torch import nn, optim
 from utils import save_experiment, save_checkpoint
 from data import prepare_data
 from vit import ViTForClassfication
+import sys
+import os
 
 
-config = {
-    "patch_size": 4,  # Input image size: 32x32 -> 8x8 patches
-    "hidden_size": 48,
-    "num_hidden_layers": 4,
-    "num_attention_heads": 4,
-    "intermediate_size": 4 * 48, # 4 * hidden_size
-    "hidden_dropout_prob": 0.0,
-    "attention_probs_dropout_prob": 0.0,
-    "initializer_range": 0.02,
-    "image_size": 32,
-    "num_classes": 10, # num_classes of CIFAR10
-    "num_channels": 3,
-    "qkv_bias": True,
-    "use_faster_attention": True,
-}
-# These are not hard constraints, but are used to prevent misconfigurations
-assert config["hidden_size"] % config["num_attention_heads"] == 0
-assert config['intermediate_size'] == 4 * config['hidden_size']
-assert config['image_size'] % config['patch_size'] == 0
+# config = {
+#     "patch_size": 4,  # Input image size: 32x32 -> 8x8 patches
+#     "hidden_size": 48,
+#     "num_hidden_layers": 4,
+#     "num_attention_heads": 4,
+#     "intermediate_size": 4 * 48, # 4 * hidden_size
+#     "hidden_dropout_prob": 0.0,
+#     "attention_probs_dropout_prob": 0.0,
+#     "initializer_range": 0.02,
+#     "image_size": 32,
+#     "num_classes": 10, # num_classes of CIFAR10
+#     "num_channels": 3,
+#     "qkv_bias": True,
+#     "use_faster_attention": True,
+# }
+# # These are not hard constraints, but are used to prevent misconfigurations
+# assert config["hidden_size"] % config["num_attention_heads"] == 0
+# assert config['intermediate_size'] == 4 * config['hidden_size']
+# assert config['image_size'] % config['patch_size'] == 0
 
 
 class Trainer:
@@ -39,12 +41,15 @@ class Trainer:
         self.exp_name = exp_name
         self.device = device
 
-    def train(self, trainloader, testloader, epochs, save_model_every_n_epochs=0):
+    def train(self, trainloader, testloader, epochs, config, save_model_every_n_epochs=0, log_file=None):
         """
         Train the model for the specified number of epochs.
         """
         # Keep track of the losses and accuracies
         train_losses, test_losses, accuracies = [], [], []
+        if log_file:
+            os.makedirs(os.path.dirname(log_file), exist_ok=True)
+            log_file = open(log_file, 'w')
         # Train the model
         for i in range(epochs):
             train_loss = self.train_epoch(trainloader)
@@ -52,12 +57,16 @@ class Trainer:
             train_losses.append(train_loss)
             test_losses.append(test_loss)
             accuracies.append(accuracy)
-            print(f"Epoch: {i+1}, Train loss: {train_loss:.4f}, Test loss: {test_loss:.4f}, Accuracy: {accuracy:.4f}")
+            # if log_file:
+            #     log_file = sys.stdout
+            print(f"Epoch: {i+1}, Train loss: {train_loss:.4f}, Test loss: {test_loss:.4f}, Accuracy: {accuracy:.4f}", file=log_file, flush=True)
             if save_model_every_n_epochs > 0 and (i+1) % save_model_every_n_epochs == 0 and i+1 != epochs:
-                print('\tSave checkpoint at epoch', i+1)
+                print('\tSave checkpoint at epoch', i+1, file=log_file, flush=True)
                 save_checkpoint(self.exp_name, self.model, i+1)
         # Save the experiment
         save_experiment(self.exp_name, config, self.model, train_losses, test_losses, accuracies)
+        if log_file:
+            log_file.close()
 
     def train_epoch(self, trainloader):
         """

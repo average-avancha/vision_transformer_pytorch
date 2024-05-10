@@ -370,7 +370,7 @@ class ViTForClassfication(nn.Module):
         # print(f'embedding output shape: {embedding_output.shape}')
 
         # Calculate the encoder's output
-        encoder_output, all_attentions = self.encoder(embedding_output)
+        encoder_output, all_attentions = self.encoder(embedding_output, output_attentions=True)
         # encoder_output = self.encoder(embedding_output)
         # print(f'encoder output shape: {encoder_output.shape}')
         # Calculate the logits, take the [CLS] token's output as features for classification
@@ -379,7 +379,7 @@ class ViTForClassfication(nn.Module):
         if not output_attentions:
             return (logits, None)
         else:
-            return (logits, None)#all_attentions)
+            return (logits, all_attentions)
         
     def _init_weights(self, module):
         if isinstance(module, (nn.Linear, nn.Conv2d)):
