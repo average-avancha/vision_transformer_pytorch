@@ -6,7 +6,7 @@ from torch.nn import functional as F
 import torchvision
 import torchvision.transforms as transforms
 
-from vit import ViTForClassfication
+from my_vit import ViTForClassfication
 
 
 def save_experiment(experiment_name, config, model, train_losses, test_losses, accuracies, base_dir="experiments"):
