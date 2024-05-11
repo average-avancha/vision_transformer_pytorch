@@ -5,10 +5,10 @@
     "image_size": 32,
     "initializer_range": 0.02,
     "intermediate_size": 192,
-    "num_attention_heads": 12,
-    "num_channels": 3,
+    "num_attention_heads": 4,
+    "num_channels": 1,
     "num_classes": 10,
-    "num_hidden_layers": 12,
+    "num_hidden_layers": 4,
     "patch_size": 4,
     "qkv_bias": true,
     "use_faster_attention": true
